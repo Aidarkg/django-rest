@@ -28,6 +28,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='review'
     )
+    stars = models.IntegerField(default=1, choices = [(i, i) for i in range(6)])
 
     def __str__(self):
         return self.movie.title
