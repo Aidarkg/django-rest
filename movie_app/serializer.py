@@ -1,13 +1,14 @@
 from rest_framework import serializers
 from movie_app import models
 
+
 class DirectorSerializer(serializers.ModelSerializer):
     movies = serializers.SerializerMethodField()
     movies_count = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Director
-        fields = '__all__'
+        fields = 'id name movies movies_count'.split()
 
     def get_movies(self, director):
         movies = director.movie.all()
@@ -21,19 +22,22 @@ class DirectorSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    movie = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Review
-        fields = ['id', 'text', 'stars']
+        fields = 'id text movie stars'.split()
+
+    def get_movie(self, review):
+        return review.movie.title
 
 
 class MovieSerializer(serializers.ModelSerializer):
     directors = serializers.SerializerMethodField()
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Movie
-        fields = '__all__'
-
+        fields = 'id title description duration directors count_reviews rating'.split()
 
     def get_directors(self, movie):
         directors = movie.directors.all()
@@ -41,12 +45,3 @@ class MovieSerializer(serializers.ModelSerializer):
             return ', '.join([director.name for director in directors])
         else:
             return 'No directors'
-        
-
-    def get_rating(self, movie):
-        total_stars = sum(review.stars for review in movie.review.all())
-        num_reviews = movie.review.count()
-        if num_reviews > 0:
-            return total_stars / num_reviews
-        else:
-            return 0.0
