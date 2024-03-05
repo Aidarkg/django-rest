@@ -31,6 +31,10 @@ def director_detail_view(request, id):
         data = serializer.DirectorSerializer(director).data
         return Response(data=data)
     elif request.method == 'PUT':
+        serializers = serializer.DirectorSerializer(data=request.data)
+        if not serializers.is_valid():
+            return Response(data=serializers.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+
         director.name = request.data.get('name')
         director.save()
         return Response(data=serializer.DirectorSerializer(director).data, status=status.HTTP_200_OK)
@@ -44,21 +48,36 @@ def director_detail_view(request, id):
 def movie_list_view(request):
     if request.method == 'GET':
         movies = models.Movie.objects.all()
-        data = serializer.MovieSerializer(movies, many=True).data
+        data = serializers.MovieSerializer(movies, many=True).data
         return Response(data=data)
     
     elif request.method == 'POST':
-        serializers = serializer.MovieSerializer(data=request.data)
-        if serializers.is_valid():
-            director_id = request.data.get('director_id')
-            if director_id:
-                director_instance = models.Director.objects.get(pk=director_id)
-                serializers.save(directors=[director_instance])
-            else:
-                serializers.save()
-            return Response(data=serializers.data, status=status.HTTP_201_CREATED)
-        return Response(data=serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializers = serializer.MovieCreateUpdateSerializer(data=request.data)
+        print(request.data)
+        if not serializers.is_valid():
+            return Response(data=serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        title = request.data.get('title')
+        description = request.data.get('description')
+        duration = request.data.get('duration')
+        try:
+            duration = timedelta(hours=int(duration.split(':')[0]), 
+                                    minutes=int(duration.split(':')[1]), 
+                                    seconds=int(duration.split(':')[2]))
+        except (ValueError, TypeError, IndexError):
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': 'Invalid duration format'})
 
+        movie = models.Movie.objects.create(
+            title=title,
+            description=description,
+            duration=duration
+        )
+
+        director_id = request.data.get('director_id')
+        director = models.Director.objects.get(pk=director_id)
+        movie.directors.add(director)
+
+        return Response(data=serializer.MovieSerializer(movie).data, status=status.HTTP_201_CREATED)
+    
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def movie_detail_view(request, id):
@@ -70,6 +89,10 @@ def movie_detail_view(request, id):
         data = serializer.MovieSerializer(movie).data
         return Response(data=data)
     elif request.method == 'PUT':
+        serializers = serializer.MovieSerializer(data=request.data)
+        if not serializers.is_valid():
+            return Response(data=serializers.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+
         movie.title = request.data.get('title')
         movie.description = request.data.get('description')
         duration_str = request.data.get('duration')
@@ -117,6 +140,9 @@ def review_detail_view(request, id):
         data = serializer.ReviewSerializer(review).data
         return Response(data=data)
     elif request.method == 'PUT':
+        serializers = serializer.ReviewSerializer(data=request.data)
+        if not serializers.is_valid():
+            return Response(data=serializers.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         review.text = request.data.get('text')
         review.stars = request.data.get('stars')
         review.save()

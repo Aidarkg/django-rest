@@ -26,7 +26,11 @@ class Movie(models.Model):
 
     @property
     def rating(self):
-        return Review.objects.filter(movie=self).aggregate(Avg('stars'))
+        rating_avg = Review.objects.filter(movie=self).aggregate(Avg('stars'))['stars__avg']
+        if rating_avg is not None:
+            return round(rating_avg)
+        else:
+            return 1
 
     def __str__(self):
         return self.title
@@ -39,7 +43,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='review'
     )
-    stars = models.IntegerField(default=1, null=True)
-
+    stars = models.IntegerField(default=1, choices = [(i, i) for i in range(6)])
+    
     def __str__(self):
         return self.movie.title

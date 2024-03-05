@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from movie_app import models
+from rest_framework.exceptions import ValidationError
 
 
 class DirectorSerializer(serializers.ModelSerializer):
@@ -45,3 +46,15 @@ class MovieSerializer(serializers.ModelSerializer):
             return ', '.join([director.name for director in directors])
         else:
             return 'No directors'
+
+
+class MovieCreateUpdateSerializer(serializers.Serializer):
+    title = serializers.CharField(min_length=3, required=True)
+    description = serializers.CharField(required=True)
+    duration = serializers.DurationField(required=True)
+    director_id = serializers.IntegerField(required=True)
+
+    def validate_director_id(self, director_id):
+        if models.Director.objects.filter(id=director_id).count() == 0:
+            raise ValidationError('Invalid director id')
+        
