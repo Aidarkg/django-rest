@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Avg
+from django.contrib.auth.models import User
 
 
 class Director(models.Model):
@@ -10,6 +11,12 @@ class Director(models.Model):
 
 
 class Movie(models.Model):
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name='user_movies',
+        null=True
+    )
     title = models.CharField(max_length=255)
     description = models.TextField()
     duration = models.DurationField()
@@ -37,6 +44,12 @@ class Movie(models.Model):
 
 
 class Review(models.Model):
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.CASCADE, 
+        related_name='user_reviews',
+        null=True
+    )
     text = models.TextField()
     movie = models.ForeignKey(
         Movie,
@@ -47,3 +60,12 @@ class Review(models.Model):
     
     def __str__(self):
         return self.movie.title
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='profile'
+    )
+    phone_number = models.CharField(max_length=13)
