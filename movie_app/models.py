@@ -15,7 +15,8 @@ class Movie(models.Model):
         "auth.User",
         on_delete=models.CASCADE,
         related_name='user_movies',
-        null=True
+        null=True,
+        blank=True
     )
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -23,7 +24,6 @@ class Movie(models.Model):
     directors = models.ManyToManyField(
         Director,
         related_name='movie',
-        null=True,
         blank=True
     )
 
@@ -48,18 +48,21 @@ class Review(models.Model):
         "auth.User",
         on_delete=models.CASCADE, 
         related_name='user_reviews',
-        null=True
+        null=True,
+        blank=True
     )
     text = models.TextField()
     movie = models.ForeignKey(
         Movie,
         on_delete=models.CASCADE,
-        related_name='review'
+        related_name='review',
+        null=True,
+        blank=True
     )
     stars = models.IntegerField(default=1, choices = [(i, i) for i in range(6)])
     
     def __str__(self):
-        return self.movie.title
+        return str(self.id)
 
 
 class Profile(models.Model):

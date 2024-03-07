@@ -41,11 +41,21 @@ INSTALLED_APPS = [
     'movie_app',
     'rest_framework',
     "rest_framework.authtoken",
+    "class_based_views",
+    'corsheaders',
+    "django_filters",
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication"
+    ],
+
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    "PAGE_SIZE": 5,
+    
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
     ]
 }
 
@@ -57,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'Afisha.urls'
@@ -138,3 +149,10 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',  # адрес вашего фронтенда
+    'http://127.0.0.1:3000',   # адрес вашего фронтенда
+    'http://127.0.0.1:5500'
+]
+

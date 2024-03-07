@@ -229,5 +229,5 @@ def user_review_view(request):
         return Response(data={"message": "You are not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
     
     reviews = models.Review.objects.filter(user=request.user)
-    serializer = serializer.ReviewSerializer(reviews, many=True)
-    return Response(data=serializer.data)
+    serializers = serializer.ReviewSerializer(reviews, many=True)
+    return Response(data=serializers.data)

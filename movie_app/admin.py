@@ -15,7 +15,7 @@ class DirectorAdmin(admin.ModelAdmin):
 
 @admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user']
+    list_display = ['id', 'user']
 
 
 @admin.register(models.Review)
