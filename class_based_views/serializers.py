@@ -7,55 +7,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate
 
-
-
-class DirectorSerializer(serializers.ModelSerializer):
-    movie = serializers.SerializerMethodField()
-    movies_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = models.Director
-        fields = 'id name movie movies_count'.split()
-
-    def get_movie(self, director):
-        movies = director.movie.all()
-        if movies:
-            return ', '.join([movie.title for movie in movies])
-        else:
-            return "No movies"
-
-    def get_movies_count(self, director):
-        return director.movie.count()
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    movie = serializers.PrimaryKeyRelatedField(queryset=models.Movie.objects.all())
-
-    class Meta:
-        model = models.Review
-        fields = 'id user text movie stars'.split()
-
-
-
-class MovieSerializer(serializers.ModelSerializer):
-    directors = serializers.PrimaryKeyRelatedField(queryset=models.Director.objects.all(), many=True)
-
-    class Meta:
-        model = models.Movie
-        fields = 'id user title description duration directors count_reviews rating'.split()
-        
-
-
-class MovieCreateUpdateSerializer(serializers.Serializer):
-    title = serializers.CharField(min_length=3, required=True)
-    description = serializers.CharField(required=True)
-    duration = serializers.DurationField(required=True)
-    director_id = serializers.IntegerField(required=True)
-
-    def validate_director_id(self, director_id):
-        if models.Director.objects.filter(id=director_id).count() == 0:
-            raise ValidationError('Invalid director id')
-        
+   
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -104,7 +56,6 @@ class RegisterSerializer(serializers.Serializer):
             user=user, 
             phone_number=phone_number)
         
-
         activation_link = f'/api/v1/verify/{user.id}'
 
         send_mail(

@@ -31,9 +31,10 @@ class ReviewListApiView(ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     pagination_class = PageNumberPagination
+    filterset_fields = ['text']
     
 
-class RewieUpdateDeleteApiView(RetrieveUpdateDestroyAPIView):
+class RewiewUpdateDeleteApiView(RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     pagination_class = PageNumberPagination
@@ -44,6 +45,7 @@ class DirectorListApiView(ListCreateAPIView):
     queryset = Director.objects.all()
     serializer_class = DirectorSerializer
     pagination_class = PageNumberPagination
+    filterset_fields = ['name']
 
 
 class DirectorUpdateDeleteApiView(RetrieveUpdateDestroyAPIView):
@@ -75,10 +77,16 @@ class RegisterApiView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class RegisterApiView2(ListCreateAPIView):
+    queryset = models.Profile.objects.all()
+    serializer_class = RegisterSerializer
+
+
+
 class VerifyApiView(APIView):
-      def get(self, request, user_id):
+      def get(self, request, id):
         try:
-            user = User.objects.get(pk=user_id)
+            user = User.objects.get(pk=id)
             user.is_active = True
             user.save()
             return Response({"message": "User account has been activated successfully."})
